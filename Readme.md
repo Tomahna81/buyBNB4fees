@@ -20,7 +20,19 @@ If those conditions are not fullfilled, the order is cancelled and a new one may
 
 **[2] Dealing with the order quantity. The ordered quantity is autoadjusting using three factors:**
    - The minimum quantity requested to be bought by the user. It is not a very critical quantity, but it is recommended to be set so that it covers a few trades (to avoid to constantly having orders)
-   - An user-defined fraction of the total amount of coins for the main asset, ie. for the asset with the highest capital. For example, if the considered assets are BNB, USDT and BTC (Scenario of a SmartUSD BTC), with a balance(USDT)=1000 USD, balance(BTC)=0 USD, then the highest capital is in USDT. If the user set the fraction to 5%, then the maximum amount of BNB that we are allowed to buy is of '0.05*1000 = 50 USD'. The amount of BNB set to be bought will then of course depend on the current rate for the pair BNBUSDT.
-   - The relative difference between the current price and the average price for a given period, along with it variance. The average price serves as a reference to evaluate the possibility of an uptrend (in the case the current price is higher than the mentionned average) or in a downtrend (in the case the current price is lower than the average). Basically, if the price 'looks cheap' compared to the average value, then we should buy a higher quantity than if the price 'looks expensive'. Cheap and Expensive being relative notion, they will be highly dependent on the considered period for computing the average price and variance. Currently the average price is set to be calculated over a period of 3 months (excluding the current month). 
+   - An user-defined fraction of the total amount of coins for the main asset, ie. for the asset with the highest capital. For example, if the considered assets are BNB, USDT and BTC (Scenario of a SmartUSD BTC), with a balance(USDT)=1000 USD, balance(BTC)=0 USD, then the highest capital is in USDT. If the user set the fraction to 5%, then the maximum amount of BNB that we are allowed to buy is of "0.05 x 1000 = 50 USD". The amount of BNB set to be bought will then of course depend on the current rate for the pair BNBUSDT.
+   - The relative difference between the current price and the average price for a given period, along with its variance. The average price serves as a reference to evaluate the possibility of an uptrend (in the case the current price is higher than the mentionned average) or in a downtrend (in the case the current price is lower than the average). Basically, if the price 'looks cheap' compared to the average value, then we should buy a higher quantity than if the price 'looks expensive'. Cheap and Expensive being relative notion, they will be highly dependent on the considered period for computing the average price and variance. Currently the average price is set to be calculated over a period of 3 months (excluding the current month). 
 
 Based on those three variables and some functional defined in the **eval_asset_qty() function**, the quantity of BNB to buy is decided.
+This function calculate the quantity to buy by (1) taking a given period (eg. 3 months) in months, (2) determining the sigma and median price over that period
+and (3) define a curve like below to evaluate the quantity q to buy, vs price:
+		    ^ q
+			 |---------+ (Pmin, qmax)
+			 |			   +
+			 |			    +
+			 |			     +
+			 |			      + (Pmed, qmin)
+			 |			       + ----------
+			 |----------|---|-------------> Price
+			           Pmin  Pmed       
+Here, Pmed is the median price over the specified period (of 3 months). Above that price, we only buy qmin.  Down to **Pmin=Pmed-Nsig.sigma**, the bought quantity increase linearly with the current price. The lower the current price, the more we buy. In the relation just before, sigma is the standard deviation of the price over the specified period and Nsig is fixed to 5. Below the price Pmin, we do not increase the bought quantity as we reach the maximum allowed in term of percent of capital
