@@ -26,7 +26,7 @@ If those conditions are not fullfilled, the order is cancelled and a new one may
 Based on those three variables and some functional defined in the **eval_asset_qty() function**, the quantity of BNB to buy is decided.
 This function calculate the quantity to buy by (1) taking a given period (eg. 3 months) in months, (2) determining the sigma and median price over that period
 and (3) define a curve like below to evaluate the quantity q to buy, vs price:
-		    ^ q
+```		    ^ q
 			 |---------+ (Pmin, qmax)
 			 |			   +
 			 |			    +
@@ -35,4 +35,6 @@ and (3) define a curve like below to evaluate the quantity q to buy, vs price:
 			 |			       + ----------
 			 |----------|---|-------------> Price
 			           Pmin  Pmed       
+```
+
 Here, Pmed is the median price over the specified period (of 3 months). Above that price, we only buy qmin.  Down to **Pmin=Pmed-Nsig.sigma**, the bought quantity increase linearly with the current price. The lower the current price, the more we buy. In the relation just before, sigma is the standard deviation of the price over the specified period and Nsig is fixed to 5. Below the price Pmin, we do not increase the bought quantity as we reach the maximum allowed in term of percent of capital
