@@ -34,7 +34,7 @@ and (3) define a curve like below to evaluate the quantity q to buy, vs price:
 			 |		+
 			 |		 + (Pmed, qmin)
 			 |	          + -------------
-			 |----------|---|-------------> Price
+			 |-----------|----|-------------> Price
 			           Pmin  Pmed       
 ```
 
