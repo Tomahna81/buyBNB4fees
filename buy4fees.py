@@ -401,6 +401,7 @@ max_fees_threshold=0.075/100. # Maximum fees that are applied by the exchange. B
 asset_A="BNB" # typically the asset for the fees
 asset_ref="USDT" # The asset of the stablecoin
 asset_B="ETH" # The asset of the smartusd... Typically 'BTC' 'ETH' or 'LINK'
+cap_ref=10000. # upper limit on the traded amount. This is due to the new cap introduced on smartusd
 
 pair_Aref=asset_A + asset_ref # The pair considered for refilling the asset used for fees 
 pair_AB=asset_A + asset_B # The other possible pair considered for refilling the asset used for fees 
@@ -505,7 +506,11 @@ while exit == False:
 		# Convert value of asset_B into a value of asset_ref 
 		balance_asset_A_base_ref=balance_asset_A*mean_price_pair_Aref # Convert asset_B balance into value of asset_ref
 		balance_asset_B_base_ref=balance_asset_B*mean_price_pair_trade # Convert asset_B balance into value of asset_ref
-
+		# Imposing the cap as the maximum balance that is possible to trade
+		if balance_asset_A_base_ref > cap_ref and cap_ref>0:
+			balance_asset_A_base_ref=cap_ref
+		if balance_asset_B_base_ref > cap_ref and cap_ref>0:
+			balance_asset_B_base_ref=cap_ref			
 		print("Value of " + asset_B + " in " + asset_B + " :", str(balance_asset_B))
 		print("Value of " + asset_B + " in " + asset_ref + " :" + str(balance_asset_B_base_ref))
 		Nmaxtrades_Aref, offset_price_Aref=eval_offsetprice(balance_asset_A_base_ref, balance_asset_ref, max_fees_threshold, delta_change_pair_Aref, offsets_percent)  # Number of possible trades between asset_A=BNB and asset_ref=USDT
