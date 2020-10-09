@@ -388,7 +388,8 @@ api_key='PUT YOUR API KEY HERE' # smartusd BTC/ETH/LINK API KEY
 api_secret='PUT YOUR API SECRET HERE' # smartusd BTC/ETH/LINK API SECRET
 
 # Setup for local data
-logfile_noext='~/Trades/buyBNB/logs/datalog'
+current_dir=os.getcwd()
+logfile_noext=current_dir +  '/logs/datalog'
 
 # Initialisation
 stored_exception=None
