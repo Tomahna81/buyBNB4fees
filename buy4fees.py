@@ -508,9 +508,11 @@ while exit == False:
 		balance_asset_A_base_ref=balance_asset_A*mean_price_pair_Aref # Convert asset_B balance into value of asset_ref
 		balance_asset_B_base_ref=balance_asset_B*mean_price_pair_trade # Convert asset_B balance into value of asset_ref
 		# Imposing the cap as the maximum balance that is possible to trade
-		if balance_asset_A_base_ref > cap_ref and cap_ref>0:
-			balance_asset_A_base_ref=cap_ref
+		if balance_asset_ref > cap_ref and cap_ref>0:
+			print('        Warning: Cap imposed on ', asset_ref, '. The limit is:', cap_ref)
+			balance_asset_ref=cap_ref
 		if balance_asset_B_base_ref > cap_ref and cap_ref>0:
+			print('        Warning: Cap imposed on ', asset_B, '. The limit is:', cap_ref)
 			balance_asset_B_base_ref=cap_ref			
 		print("Value of " + asset_B + " in " + asset_B + " :", str(balance_asset_B))
 		print("Value of " + asset_B + " in " + asset_ref + " :" + str(balance_asset_B_base_ref))
