@@ -4,7 +4,7 @@
 This is a automaton designed for Binance that ensure that there is always a suficient balance of BNB to have the Binance fee discount. The automaton buys BNB using two other currency chosen by the user and following some set of rules that should avoid to buy a too large quantity of BNB at too high price (compared to historical prices) and would buy preferentially at lower price. 
 
 ## Disclaimer 
-This program is to be used at your own risk. The user is sole responsible of any potential loss incurred for using it. This program is not a trading bot in the sense that it tries to make profit. It is just intented to ensure a suficient balance of BNB is there at all time in order to reduce fees in Binance. 
+This program is to be used at your own risk. The user is sole responsible of any potential loss incurred for using it. This program is not a trading bot in the sense that it is not designed to make profit. It is just intented to ensure a suficient balance of BNB is there at all time in order to reduce fees in Binance. 
 
 ## Extended details on the purpose of the program
 
