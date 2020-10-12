@@ -381,6 +381,16 @@ def decide_cancel_timeout(client, timeout_h, order_list, cancel_all_on_warning=T
 				status=True	
 	return status
 
+def get_price_sum(pair):
+	stats_pair = client.get_klines(symbol=pair, interval=limit_order_timeout, limit=2) # Used to evaluate the variance over the time interval limit_order_timeout
+	mean_price_pair= client.get_avg_price(symbol=pair)
+	# Extract information
+	mean_price_pair=np.double(mean_price_pair['price'])
+	min_price_pair=np.double(stats_pair[0][3])
+	max_price_pair=np.double(stats_pair[0][2])
+	delta_change_pair=(max_price_pair-min_price_pair) #/mean_price_pair_AB # Changed occured over the last 'limit_order_timeout' (typically 24h)
+	return mean_price_pair, delta_change_pair
+
 # --------- START OF THE MAIN --------
 	
 # Put your READ-ONLY keys
@@ -439,27 +449,44 @@ while exit == False:
 		print('Time ' + str(tdate) + ' (' + str(time0) + ')...'),
 		# Getting information on price of the relative value of asset_A vs asset_ref trough pair_Aref
 	try:
-		stats_pair_Aref = client.get_klines(symbol=pair_Aref, interval=limit_order_timeout, limit=2) # Used to evaluate the variance over the time interval limit_order_timeout
-		mean_price_pair_Aref= client.get_avg_price(symbol=pair_Aref)
-		# Extract information 
-		mean_price_pair_Aref=np.double(mean_price_pair_Aref['price'])
-		min_price_pair_Aref=np.double(stats_pair_Aref[0][3]) # [0] is to pick the first object (with limit=1 this is the lated daily candle... me be better to take the closed candle instead)
-		max_price_pair_Aref=np.double(stats_pair_Aref[0][2])
-		delta_change_pair_Aref=(max_price_pair_Aref-min_price_pair_Aref) #/mean_price_pair_Aref # Changed occured over the last 'limit_order_timeout' (typically 24h)
+		mean_price_pair_Aref, delta_change_pair_Aref=get_price_sum(pair_Aref)
+		#stats_pair_Aref = client.get_klines(symbol=pair_Aref, interval=limit_order_timeout, limit=2) # Used to evaluate the variance over the time interval limit_order_timeout
+		#mean_price_pair_Aref= client.get_avg_price(symbol=pair_Aref)
+		## Extract information 
+		#mean_price_pair_Aref=np.double(mean_price_pair_Aref['price'])
+		#min_price_pair_Aref=np.double(stats_pair_Aref[0][3]) # [0] is to pick the first object (with limit=1 this is the lated daily candle... me be better to take the closed candle instead)
+		#max_price_pair_Aref=np.double(stats_pair_Aref[0][2])
+		#delta_change_pair_Aref=(max_price_pair_Aref-min_price_pair_Aref) #/mean_price_pair_Aref # Changed occured over the last 'limit_order_timeout' (typically 24h)
 	except:
 		print('could not get the klines or average price for ' + pair_Aref)
 		#print('Need debug. Will stop here')
 	# Getting information on price of the relative value of asset_A vs asset_B trough pair_AB
 	try:
-		stats_pair_AB = client.get_klines(symbol=pair_AB, interval=limit_order_timeout, limit=2) # Used to evaluate the variance over the time interval limit_order_timeout
-		mean_price_pair_AB= client.get_avg_price(symbol=pair_AB)
-		# Extract information
-		mean_price_pair_AB=np.double(mean_price_pair_AB['price'])
-		min_price_pair_AB=np.double(stats_pair_AB[0][3])
-		max_price_pair_AB=np.double(stats_pair_AB[0][2])
-		delta_change_pair_AB=(max_price_pair_AB-min_price_pair_AB) #/mean_price_pair_AB # Changed occured over the last 'limit_order_timeout' (typically 24h)
+		mean_price_pair_AB, delta_change_pair_AB=get_price_sum(pair_AB)
+		#stats_pair_AB = client.get_klines(symbol=pair_AB, interval=limit_order_timeout, limit=2) # Used to evaluate the variance over the time interval limit_order_timeout
+		#mean_price_pair_AB= client.get_avg_price(symbol=pair_AB)
+		## Extract information
+		#mean_price_pair_AB=np.double(mean_price_pair_AB['price'])
+		#min_price_pair_AB=np.double(stats_pair_AB[0][3])
+		#max_price_pair_AB=np.double(stats_pair_AB[0][2])
+		#delta_change_pair_AB=(max_price_pair_AB-min_price_pair_AB) #/mean_price_pair_AB # Changed occured over the last 'limit_order_timeout' (typically 24h)
 	except:
 		print('could not get the klines or average price for ' + pair_AB)
+		print(' ===> Passing by USDT to evaluate current values...')
+		try:
+			pair1=asset_A + 'USDT'
+			mean_price_pair1, delta_change_pair1=get_price_sum(pair1)
+			pair2=asset_B + 'USDT'
+			mean_price_pair2, delta_change_pair2=get_price_sum(pair2)
+			mean_price_pair_AB=mean_price_pair1/mean_price_pair2
+			# Formally incorrect, but to do it cleanly it would be quite coumbersome. Therefore, I use the error propagation law that assumes gaussian distribs (but it is clearly not valid) 
+			delta_change_pair_AB=np.sqrt((delta_change_pair1/mean_price_pair2)**2 + (mean_price_pair_AB*delta_change_pair2/mean_price_pair2)**2) 
+			print('NEED TO CHECK ALL THIS TRY... DEBUG EXIT)
+			exit()
+		except:
+			print('ERROR: failed to pass by USDT to get valuations... Need serious debug')
+			print('The program will exit now')
+			exit()
 		#print('Need debug. Will stop here')
 	# Getting information on price of the relative value of asset_B vs asset_ref trough pair_trade
 	try:
