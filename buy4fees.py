@@ -381,15 +381,15 @@ def decide_cancel_timeout(client, timeout_h, order_list, cancel_all_on_warning=T
 				status=True	
 	return status
 
-def get_price_sum(pair):
-	stats_pair = client.get_klines(symbol=pair, interval=limit_order_timeout, limit=2) # Used to evaluate the variance over the time interval limit_order_timeout
+def get_price_sum(pair, interval):
+	stats_pair = client.get_klines(symbol=pair, interval, limit=2) # Used to evaluate the variance over the time interval limit_order_timeout
 	mean_price_pair= client.get_avg_price(symbol=pair)
 	# Extract information
 	mean_price_pair=np.double(mean_price_pair['price'])
 	min_price_pair=np.double(stats_pair[0][3])
 	max_price_pair=np.double(stats_pair[0][2])
 	delta_change_pair=(max_price_pair-min_price_pair) #/mean_price_pair_AB # Changed occured over the last 'limit_order_timeout' (typically 24h)
-	return mean_price_pair, delta_change_pair
+	return mean_price_pair, delta_change_pair, min_price_pair, max_price_pair
 
 # --------- START OF THE MAIN --------
 	
@@ -449,7 +449,7 @@ while exit == False:
 		print('Time ' + str(tdate) + ' (' + str(time0) + ')...'),
 		# Getting information on price of the relative value of asset_A vs asset_ref trough pair_Aref
 	try:
-		mean_price_pair_Aref, delta_change_pair_Aref=get_price_sum(pair_Aref)
+		mean_price_pair_Aref, delta_change_pair_Aref,min_price_pair, max_price_pair=get_price_sum(pair_Aref, limit_order_timeout)
 		#stats_pair_Aref = client.get_klines(symbol=pair_Aref, interval=limit_order_timeout, limit=2) # Used to evaluate the variance over the time interval limit_order_timeout
 		#mean_price_pair_Aref= client.get_avg_price(symbol=pair_Aref)
 		## Extract information 
@@ -462,7 +462,7 @@ while exit == False:
 		#print('Need debug. Will stop here')
 	# Getting information on price of the relative value of asset_A vs asset_B trough pair_AB
 	try:
-		mean_price_pair_AB, delta_change_pair_AB=get_price_sum(pair_AB)
+		mean_price_pair_AB, delta_change_pair_AB, min_price_pair, max_price_pair=get_price_sum(pair_AB, limit_order_timeout)
 		#stats_pair_AB = client.get_klines(symbol=pair_AB, interval=limit_order_timeout, limit=2) # Used to evaluate the variance over the time interval limit_order_timeout
 		#mean_price_pair_AB= client.get_avg_price(symbol=pair_AB)
 		## Extract information
@@ -475,12 +475,21 @@ while exit == False:
 		print(' ===> Passing by USDT to evaluate current values...')
 		try:
 			pair1=asset_A + 'USDT'
-			mean_price_pair1, delta_change_pair1=get_price_sum(pair1)
+			mean_price_pair1, delta_change_pair1, min_price_pair1, max_price_pair1=get_price_sum(pair1,limit_order_timeout)
 			pair2=asset_B + 'USDT'
-			mean_price_pair2, delta_change_pair2=get_price_sum(pair2)
+			mean_price_pair2, delta_change_pair2, min_price_pair2, max_price_pair2=get_price_sum(pair2,limit_order_timeout)
 			mean_price_pair_AB=mean_price_pair1/mean_price_pair2
-			# Formally incorrect, but to do it cleanly it would be quite coumbersome. Therefore, I use the error propagation law that assumes gaussian distribs (but it is clearly not valid) 
-			delta_change_pair_AB=np.sqrt((delta_change_pair1/mean_price_pair2)**2 + (mean_price_pair_AB*delta_change_pair2/mean_price_pair2)**2) 
+			## Formally incorrect, but to do it cleanly it would be quite coumbersome. Therefore, I use the error propagation law that assumes gaussian distribs (but it is clearly not valid) 
+			delta_change_pair_AB_v2=np.sqrt((delta_change_pair1/mean_price_pair2)**2 + (mean_price_pair_AB*delta_change_pair2/mean_price_pair2)**2) 
+			# Another of doing it, but not necessarily true because we actually have missing time information there...
+			min_price_pair_AB=min_price_pair1/min_price_pair2
+			max_price_pair_AB=max_price_pair1/max_price_pair2
+			delta_change_pair_AB=np.abs(max_price_pair_AB-min_price_pair_AB)
+			print('mean_price_pair1=', mean_price_pair1)
+			print('mean_price_pair2=', mean_price_pair2)
+			print('mean_price_pair_AB=', mean_price_pair_AB)
+			print('delta_change_pair_AB=', delta_change_pair_AB)
+			print('delta_change_pair_AB_v2=', delta_change_pair_AB_v2)
 			print('NEED TO CHECK ALL THIS TRY... DEBUG EXIT)
 			exit()
 		except:
