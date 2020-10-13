@@ -382,7 +382,7 @@ def decide_cancel_timeout(client, timeout_h, order_list, cancel_all_on_warning=T
 	return status
 
 def get_price_sum(pair, interval):
-	stats_pair = client.get_klines(symbol=pair, interval, limit=2) # Used to evaluate the variance over the time interval limit_order_timeout
+	stats_pair = client.get_klines(symbol=pair, interval=interval, limit=2) # Used to evaluate the variance over the time interval limit_order_timeout
 	mean_price_pair= client.get_avg_price(symbol=pair)
 	# Extract information
 	mean_price_pair=np.double(mean_price_pair['price'])
