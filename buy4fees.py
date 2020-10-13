@@ -480,16 +480,16 @@ while exit == False:
 			mean_price_pair2, delta_change_pair2, min_price_pair2, max_price_pair2=get_price_sum(pair2,limit_order_timeout)
 			mean_price_pair_AB=mean_price_pair1/mean_price_pair2
 			## Formally incorrect, but to do it cleanly it would be quite coumbersome. Therefore, I use the error propagation law that assumes gaussian distribs (but it is clearly not valid) 
-			delta_change_pair_AB_v2=np.sqrt((delta_change_pair1/mean_price_pair2)**2 + (mean_price_pair_AB*delta_change_pair2/mean_price_pair2)**2) 
-			# Another of doing it, but not necessarily true because we actually have missing time information there...
-			min_price_pair_AB=min_price_pair1/min_price_pair2
-			max_price_pair_AB=max_price_pair1/max_price_pair2
-			delta_change_pair_AB=np.abs(max_price_pair_AB-min_price_pair_AB)
-			print('mean_price_pair1=', mean_price_pair1)
-			print('mean_price_pair2=', mean_price_pair2)
-			print('mean_price_pair_AB=', mean_price_pair_AB)
-			print('delta_change_pair_AB=', delta_change_pair_AB)
-			print('delta_change_pair_AB_v2=', delta_change_pair_AB_v2)
+			delta_change_pair_AB_v2=np.sqrt((delta_change_pair1/mean_price_pair2)**2 + (mean_price_pair_AB*delta_change_pair2/mean_price_pair2)**2)/2
+			# Another of doing it, but not necessarily true because we actually have missing time information there that makes it very wrong...
+			#min_price_pair_AB=min_price_pair1/min_price_pair2
+			#max_price_pair_AB=max_price_pair1/max_price_pair2
+			#delta_change_pair_AB=np.abs(max_price_pair_AB-min_price_pair_AB)
+			#print('mean_price_pair1=', mean_price_pair1)
+			#print('mean_price_pair2=', mean_price_pair2)
+			#print('mean_price_pair_AB=', mean_price_pair_AB)
+			#print('delta_change_pair_AB=', delta_change_pair_AB)
+			#print('delta_change_pair_AB_v2=', delta_change_pair_AB_v2)
 			print('NEED TO CHECK ALL THIS TRY... DEBUG EXIT')
 			exit()
 		except:
