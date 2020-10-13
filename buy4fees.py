@@ -490,7 +490,7 @@ while exit == False:
 			print('mean_price_pair_AB=', mean_price_pair_AB)
 			print('delta_change_pair_AB=', delta_change_pair_AB)
 			print('delta_change_pair_AB_v2=', delta_change_pair_AB_v2)
-			print('NEED TO CHECK ALL THIS TRY... DEBUG EXIT)
+			print('NEED TO CHECK ALL THIS TRY... DEBUG EXIT')
 			exit()
 		except:
 			print('ERROR: failed to pass by USDT to get valuations... Need serious debug')
